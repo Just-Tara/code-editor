@@ -3,7 +3,7 @@ import EditorTabs from './EditorTabs';
 import CodeEditor from './CodeEditor';
 import StatusBar from './StatusBar';
 
-function EditorPanel({ activeTab, onTabChange, activeMobileView, files, onCodeChange, isDark, }) {
+function EditorPanel({ activeTab, onTabChange, activeMobileView, files, onCodeChange, isDark, fontSize}) {
   return (
 
     <div
@@ -21,6 +21,7 @@ function EditorPanel({ activeTab, onTabChange, activeMobileView, files, onCodeCh
         onChange={onCodeChange}
         language={activeTab === "js" ? "javascript" : activeTab}
         theme={isDark ? "dark" : "light"}
+        fontSize={fontSize}
         />
       </div>
       <StatusBar />

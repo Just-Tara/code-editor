@@ -1,5 +1,5 @@
-// src/App.jsx
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
 import MobileTabs from "./components/MobileTabs";
 import EditorPanel from "./components/EditorPanel.jsx";
@@ -18,6 +18,31 @@ function App() {
     css: 'body {\n  font-family: Arial;\n  padding: 20px;\n}\n\nh1 {\n  color: #007acc;\n}',
     js: 'console.log("Hello from JavaScript!");\n\ndocument.addEventListener("DOMContentLoaded", () => {\n  console.log("Page loaded!");\n});'
   });
+  const [fontSize, setFontSize] = useState(14);
+
+  useEffect(() => {
+    try{
+      const savedFiles = localStorage.getItem("code-files");
+        if (savedFiles) {
+          const parsedFiles = JSON.parse(savedFiles);
+          setFiles(parsedFiles);
+          console.log("successfully loade the saved files");
+        } else{
+          console.log("No saved files found");
+        }
+    }catch(error) {
+      console.log("Failed to load saved files", error)
+    }
+
+  }, [])
+
+  const increaseFontSize = () => {
+   setFontSize(prev => Math.min(prev + 2, 24));
+  }
+
+  const decreaseFontSize = () => {
+   setFontSize(prev => Math.max(prev - 2, 10));
+  }
 
   
   const handleCodeChange = (newCode) => {
@@ -26,6 +51,15 @@ function App() {
       [activeTab]: newCode
     }));
   };
+
+  const handleSaveCode = () => {
+    try{
+      localStorage.setItem('code-files', JSON.stringify(files));
+        console.log("code saved successfully!");
+    } catch (error){
+        console.log("failed to save:", error)
+    }
+  }
 
   const handleRunCode = () => {
    console.log("Running code...");
@@ -59,12 +93,18 @@ function App() {
         onToggleTheme={() => setIsDark(!isDark)}
         onMenuOpen={() => setIsMobileMenuOpen(true)}
         onRunCode={handleRunCode}
+        onIncreaseFontSize = {increaseFontSize}
+        onDecreaseFontSize = {decreaseFontSize}
+        onSaveCode = {handleSaveCode}
       />
 
-      <MobileTabs
-        activeView={activeMobileView}
-        onViewChange={setActiveMobileView}
-      />
+       <MobileTabs
+         activeView={activeMobileView}
+         onViewChange={(view) => {
+            setActiveMobileView(view);
+            if (view !== "preview") setActiveTab(view); 
+         }}
+         />
 
       <div className="flex-1 flex overflow-hidden">
         <EditorPanel
@@ -74,17 +114,21 @@ function App() {
           files={files}
           onCodeChange={handleCodeChange}
           isDark={isDark}
+          fontSize={fontSize}
         />
         <PreviewPanel 
           activeMobileView={activeMobileView}
           files={files}
           outputCode={outputCode}
+          fontSize={fontSize}
         />
       </div>
 
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        onIncreaseFontSize = {increaseFontSize}
+        onDecreaseFontSize = {decreaseFontSize}
       />
     </div>
   );

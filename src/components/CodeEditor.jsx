@@ -1,7 +1,7 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
 
-function CodeEditor({ value, onChange, language, theme }) {
+function CodeEditor({ value, onChange, language, theme, fontSize }) {
   const handleEditorChange = (newValue) => {
     if (typeof newValue === 'string') {
       onChange(newValue);
@@ -23,16 +23,19 @@ function CodeEditor({ value, onChange, language, theme }) {
         </div>
       }
       options={{
-        fontSize: 14,
+        fontSize: fontSize,
         fontFamily: 'Consolas, Monaco, monospace',
         minimap: { enabled: false },
         lineNumbers: 'on',
+       
         scrollBeyondLastLine: false,
         automaticLayout: true,
         tabSize: 2,
         wordWrap: 'on',
         padding: { top: 16 },
         renderLineHighlight: 'all',
+        readOnly: false,
+        domReadOnly: false,
         scrollbar: {
           verticalScrollbarSize: 10,
           horizontalScrollbarSize: 10,
