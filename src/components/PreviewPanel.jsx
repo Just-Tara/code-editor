@@ -60,7 +60,9 @@ function PreviewPanel({ activeMobileView, files, outputCode, fontSize }) {
         </div>
       </div>
 
-      <div className="flex-1 bg-gray-100 overflow-auto flex items-start justify-center p-4">
+      <div className={`flex-1 bg-gray-100 overflow-auto flex items-start justify-center ${
+        deviceMode === 'desktop' ? '' : 'p-4'
+      }`}>
         {!outputCode || !hasHtmlFiles ? (
           <div className="h-full w-full flex items-center justify-center bg-gray-50">
             <div className="text-center text-gray-400 p-8">
