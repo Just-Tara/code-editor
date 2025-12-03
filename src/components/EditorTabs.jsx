@@ -23,11 +23,11 @@ function EditorTabs({
         {isSidebarOpen ? <FolderOpen size={20}/> : <Folder size={20} />}
       </button>
 
-      {/* FIXED: This div can scroll */}
-      <div className="flex-1 flex overflow-x-auto">
-        {openTabs.map(fileId => {  // ✅ Loop through OPEN TABS, not all files
-          const file = files.find(f => f.id === fileId);  // Find the file details
-          if (!file) return null;  // If file was deleted, skip it
+   
+      <div className="flex-1 flex overflow-x-auto custom-scrollbar">
+        {openTabs.map(fileId => { 
+          const file = files.find(f => f.id === fileId);  
+          if (!file) return null;  
           
           return (
             <div 
@@ -42,7 +42,7 @@ function EditorTabs({
                 {file.name}
               </span>
               
-              {/* X button CLOSES the tab (doesn't delete file) */}
+              
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -58,7 +58,7 @@ function EditorTabs({
         })}
       </div>
       
-      {/* FIXED: This button stays in place */}
+     
       <button 
         onClick={onAddFile} 
         className="px-3 py-2 text-green-500 hover:text-green-400 cursor-pointer transition border-l border-gray-700"

@@ -100,7 +100,7 @@ const PISTON_LANGUAGES = [
      
       if (loadedProjects.length > 0) {
         setActiveProjectId(loadedProjects[0].id);
-        console.log("✅ Active project set to:", loadedProjects[0].id);
+        console.log(" Active project set to:", loadedProjects[0].id);
       }
       
       console.log("Projects loaded from localStorage");
@@ -488,16 +488,16 @@ const PISTON_LANGUAGES = [
  
 
     const handleRunCode = async () => {
-  console.log("🚀 Running code...");
+  console.log(" Running code...");
   setPistonOutput(null);
 
   const currentActiveFile = getActiveFile();
-  console.log("📄 Current file:", currentActiveFile);
-  console.log("🔤 File language:", currentActiveFile.language); 
+  console.log(" Current file:", currentActiveFile);
+  console.log(" File language:", currentActiveFile.language); 
   
   
   if (currentActiveFile.language === 'javascript' || currentActiveFile.language === 'typescript') {
-    console.log("✅ Running JS/TS code");
+    console.log("Running JS/TS code");
     setOutputCode("");
     executeFontendCode(currentActiveFile.content, currentActiveFile.language);
 
@@ -525,7 +525,7 @@ const PISTON_LANGUAGES = [
   if (hasWebFiles && (currentActiveFile.language === 'html' || 
       currentActiveFile.language === 'css' || 
       currentActiveFile.language === 'scss')) {
-    console.log("✅ Calling handleGeneratePreview()");
+    console.log(" Calling handleGeneratePreview()");
     handleGeneratePreview();
 
     if (isMobile) {
@@ -534,9 +534,10 @@ const PISTON_LANGUAGES = [
     return;
   }
   
-  console.log("⚠️ Did not match HTML/CSS/SCSS condition");
+  console.log(" Did not match HTML/CSS/SCSS condition");
   
   // Piston API execution for other languages
+
   if (PISTON_LANGUAGES.includes(currentActiveFile.language)) {
     console.log("🔧 Running via Piston API");
     setOutputCode("");
@@ -575,7 +576,7 @@ const PISTON_LANGUAGES = [
     return;
   }
 
-  console.log("❌ No conditions matched!");
+  console.log(" No conditions matched!");
   setPistonOutput(null);
 }
 
@@ -583,6 +584,7 @@ const PISTON_LANGUAGES = [
     setConsoleLogs([]);
   }
 
+// FUNCTION TO GENERATE PREVIEW FOR HTML/CSS/JS PROJECTS
 
   const handleGeneratePreview = () => {
     const allFiles = getFilesFromProject(activeProjectId);
@@ -716,7 +718,7 @@ const PISTON_LANGUAGES = [
             scriptElement.setAttribute('data-virtual-js', filename);
             scriptElement.textContent = content;
             document.body.appendChild(scriptElement);
-            console.log('✅ JS:', filename);
+            console.log(' JS:', filename);
         } catch(error) {
           console.error("Error loading JS:", filename, error);
         }  
@@ -728,7 +730,7 @@ const PISTON_LANGUAGES = [
         const doc = parser.parseFromString(htmlContent, 'text/html');
         doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
           const href = link.getAttribute('href');
-          if (href && (href.endsWith('.css') || href.endsWith('.scss'))) {  // ✅ FIX: Added href.endsWith
+          if (href && (href.endsWith('.css') || href.endsWith('.scss'))) {  //  FIX: Added href.endsWith
             loadVirtualCSS(href);
           }
         });
@@ -743,11 +745,11 @@ const PISTON_LANGUAGES = [
       function loadVirtualPage(filename) {
         const content = window.__virtualHtmlFiles__[filename];
         if (!content) {
-          console.error('❌ HTML not found:', filename);
+          console.error(' HTML not found:', filename);
           return;
         }
         window.__currentPage__ = filename;
-        console.log('📄 Loading:', filename);
+        console.log(' Loading:', filename);
         const parser = new DOMParser();
         const doc = parser.parseFromString(content, 'text/html');
         
