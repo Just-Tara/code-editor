@@ -16,7 +16,9 @@ function EditorPanel({
     onAddFile,
     onDeleteFile,
     onToggleSidebar,
-    isSidebarOpen 
+    isSidebarOpen,
+    onCloseTab ,
+    openTabs
   }) {
   
   
@@ -45,6 +47,8 @@ function EditorPanel({
         onDeleteFile={onDeleteFile}
         onToggleSidebar={onToggleSidebar}
         isSidebarOpen = {isSidebarOpen}
+        onCloseTab={onCloseTab}
+        openTabs={openTabs}
       />
       
       <div className='flex-1 overflow-hidden'>

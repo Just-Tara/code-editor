@@ -59,6 +59,7 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 const [targetProjectId, setTargetProjectId] = useState(null);
 const [targetFolderId, setTargetFolderId] = useState(null);
 const [activeProjectId, setActiveProjectId] = useState("project-1");
+const [openTabs, setOpenTabs] = useState(["file-1"]);
 
  
 
@@ -90,18 +91,26 @@ const PISTON_LANGUAGES = [
   }, []);
 
   useEffect(() => {
-    try {
-      const savedProjects = localStorage.getItem("code-projects");
-      if (savedProjects) {
-        setProjects(JSON.parse(savedProjects));
-        console.log("Projects loaded from localStorage");
-      } else {
-        console.log("No saved projects found");
+  try {
+    const savedProjects = localStorage.getItem("code-projects");
+    if (savedProjects) {
+      const loadedProjects = JSON.parse(savedProjects);
+      setProjects(loadedProjects);
+      
+     
+      if (loadedProjects.length > 0) {
+        setActiveProjectId(loadedProjects[0].id);
+        console.log("✅ Active project set to:", loadedProjects[0].id);
       }
-    } catch(error) {
-      console.error("Failed to load projects:", error);
+      
+      console.log("Projects loaded from localStorage");
+    } else {
+      console.log("No saved projects found");
     }
-  }, []);
+  } catch(error) {
+    console.error("Failed to load projects:", error);
+  }
+}, []);
 
   useEffect(() => {
     if (!isAutoSaveEnabled) return;
@@ -181,32 +190,39 @@ const PISTON_LANGUAGES = [
   };
 
   const getFilesFromProject = (projectId) => {
-    const project = projects.find(p => p.id === projectId);
-    if (!project)  return [];
-
-    const files = [];
-
-    project.files?.forEach(file => {
-      files.push({
-        ...files,
-        projectId: project.id,
-        folderId: null
-      });
-    });
-
-
-    project.folders?.forEach(folder => {
-      folder.files?.forEach(file => {
-        files.push({
-          ...file,
-          projectId: project.id,
-          folderId: folder.id
-        });
-      });
-    });
-    return files;
+  const project = projects.find(p => p.id === projectId);
+  if (!project) {
+    console.log(" project not found", projectId);
+    return [];
   }
+  
+  console.log("Found project:", project);  
+  console.log("Project files:", project.files);  
+  console.log("Project folders:", project.folders); 
 
+  const files = [];
+
+  project.files?.forEach(file => {
+    files.push({
+      ...file,
+      projectId: project.id,
+      folderId: null
+    });
+  });
+
+  project.folders?.forEach(folder => {
+    folder.files?.forEach(file => {
+      files.push({
+        ...file,
+        projectId: project.id,
+        folderId: folder.id
+      });
+    });
+  });
+  
+  console.log("Returning files:", files); 
+  return files;
+}
   const handleProjectDelete = (projectId) => {
     if (projects.length === 1) {
       alert("Can't delete the last project!");
@@ -305,14 +321,32 @@ const PISTON_LANGUAGES = [
       }
     }
  };
+
+ const handleCloseTab = (fileId) => {
+  if (openTabs.length === 1) {
+    return;
+  }
+  const newOpenTabs = openTabs.filter(id => id !== fileId);
+  setOpenTabs(newOpenTabs);
+
+  if (activeTab === fileId) {
+    setActiveTab(newOpenTabs[newOpenTabs.length - 1]);
+  }
+ };
  const handleFileSelect = (fileId) => {
   setActiveTab(fileId);
 
+
+  if (!openTabs.includes(fileId)) {
+    setOpenTabs([...openTabs, fileId]);
+  }
   const allFiles = getAllFiles();
   const selectedFile = allFiles.find(f => f.id === fileId);
 
   if (selectedFile) {
-    setActiveProjectId(selectedFile.id);
+    setActiveProjectId(selectedFile.projectId);
+    console.log("Selected file: ", selectedFile.name);
+    console.log("Active project set to:", selectedFile.projectId);
   }
  };
 
@@ -451,32 +485,47 @@ const PISTON_LANGUAGES = [
 
     
 
- const handleRunCode = async () => {
-    console.log("Running code...");
-    setPistonOutput(null);
+ 
 
-    const currentActiveFile = getActiveFile();
-    if (currentActiveFile.language === 'javascript' || currentActiveFile.language === 'typescript') {
-      setOutputCode("");
-      executeFontendCode(currentActiveFile.content, currentActiveFile.language);
+    const handleRunCode = async () => {
+  console.log("🚀 Running code...");
+  setPistonOutput(null);
 
-      if (isMobile) {
-        setIsMobile("preview");
-      }
-      return;
+  const currentActiveFile = getActiveFile();
+  console.log("📄 Current file:", currentActiveFile);
+  console.log("🔤 File language:", currentActiveFile.language); 
+  
+  
+  if (currentActiveFile.language === 'javascript' || currentActiveFile.language === 'typescript') {
+    console.log("✅ Running JS/TS code");
+    setOutputCode("");
+    executeFontendCode(currentActiveFile.content, currentActiveFile.language);
+
+    if (isMobile) {
+      setActiveMobileView("preview");
     }
-   
+    return;
+  }
+ 
+  
+  const projectFiles = getFilesFromProject(activeProjectId);
+  console.log(" Project files:", projectFiles);
+  console.log(" Active project ID:", activeProjectId);
 
-  const hasWebFiles = getFilesFromProject(activeProjectId).some(f => 
+  const hasWebFiles = projectFiles.some(f => 
     f.language === 'html' || 
     f.language === 'css' || 
     f.language === 'scss' || 
-    (f.language === 'javascript' || f.language === 'typescript' && files.some(file => file.language === 'html'))
+    ((f.language === 'javascript' || f.language === 'typescript') && projectFiles.some(file => file.language === 'html'))
   );
+  
+  console.log(" Has web files?", hasWebFiles);
+  console.log(" Current file language:", currentActiveFile.language);
 
   if (hasWebFiles && (currentActiveFile.language === 'html' || 
       currentActiveFile.language === 'css' || 
       currentActiveFile.language === 'scss')) {
+    console.log("✅ Calling handleGeneratePreview()");
     handleGeneratePreview();
 
     if (isMobile) {
@@ -484,49 +533,51 @@ const PISTON_LANGUAGES = [
     }
     return;
   }
-    
-    //piston api execution
+  
+  console.log("⚠️ Did not match HTML/CSS/SCSS condition");
+  
+  // Piston API execution for other languages
+  if (PISTON_LANGUAGES.includes(currentActiveFile.language)) {
+    console.log("🔧 Running via Piston API");
+    setOutputCode("");
 
-    if (PISTON_LANGUAGES.includes(currentActiveFile.language)) {
-      setOutputCode("");
+    try {
+      console.log(`Executing ${currentActiveFile.language} code via Piston API...`);
+      const result = await excutePistonCode(currentActiveFile.language, currentActiveFile.content);
 
-      try{
-        console.log(`Executing ${currentActiveFile.language} code via Piston API...`);
-        const result = await excutePistonCode(currentActiveFile.language, currentActiveFile.content);
-
-        
-        const runResult = result.run;
-            const output = (runResult.stdout || runResult.output || "") + (runResult.stderr || "");
-     
-        if (runResult.code === 0 && !runResult.stderr) {
-          setPistonOutput({
-            type: 'success',
-            content: output.trim() || `Execution finished sucessfully.`,
-            language: currentActiveFile.language
-          });
-        } else {
-          setPistonOutput({
-            type: 'error',
-            content: output.trim() || `Error during execution.`,
-            language: currentActiveFile.language
-          });
-        }
-        if (isMobile) {
-          setActiveMobileView("preview");
-        }
-      } catch (error) {
-        console.log("Piston API execution failed:", error);
+      const runResult = result.run;
+      const output = (runResult.stdout || runResult.output || "") + (runResult.stderr || "");
+ 
+      if (runResult.code === 0 && !runResult.stderr) {
         setPistonOutput({
-          type: 'error',
-          content: `Failed to connect or execute via API: ${error.message}`,
+          type: 'success',
+          content: output.trim() || `Execution finished successfully.`,
           language: currentActiveFile.language
         });
-      } 
-      return;
-    }
-
-    setPistonOutput(null);
+      } else {
+        setPistonOutput({
+          type: 'error',
+          content: output.trim() || `Error during execution.`,
+          language: currentActiveFile.language
+        });
+      }
+      if (isMobile) {
+        setActiveMobileView("preview");
+      }
+    } catch (error) {
+      console.log("Piston API execution failed:", error);
+      setPistonOutput({
+        type: 'error',
+        content: `Failed to connect or execute via API: ${error.message}`,
+        language: currentActiveFile.language
+      });
+    } 
+    return;
   }
+
+  console.log("❌ No conditions matched!");
+  setPistonOutput(null);
+}
 
   const handleClearConsole = () => {
     setConsoleLogs([]);
@@ -880,6 +931,8 @@ return (
       onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       onDeleteFile={deleteFiles}
       isSidebarOpen = {isSidebarOpen}
+      openTabs={openTabs}
+      onCloseTab={handleCloseTab}
     />
 
     {isMobile ? (
@@ -917,7 +970,9 @@ return (
           onAddFile={() => setIsAddNewFileOpen(true)}
           onDeleteFile={deleteFiles}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-         isSidebarOpen = {isSidebarOpen}
+          isSidebarOpen = {isSidebarOpen}
+          openTabs={openTabs}
+          onCloseTab={handleCloseTab}
         />
         
         <PreviewPanel 
@@ -1006,6 +1061,8 @@ return (
                 onDeleteFile={deleteFiles}
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
                 isSidebarOpen = {isSidebarOpen}
+                openTabs={openTabs}
+                onCloseTab={handleCloseTab}
               />
             </div>
 
