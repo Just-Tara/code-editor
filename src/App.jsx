@@ -80,7 +80,8 @@ const PISTON_LANGUAGES = [
  
   const compileScss = (scssCode) => scssCode.replace(/\$primary-color:\s*(.*?);[\s\S]*?color:\s*\$primary-color;/g, 'color: $1;');
   const transpileTs = (tsCode) => tsCode.replace(/const\s+(\w+):\s*string\s*=\s*(.*?);/g, 'const $1 = $2;');
-    
+   
+  // useEffect to HANDLE MOBILE VIEW DETECTION
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -90,28 +91,8 @@ const PISTON_LANGUAGES = [
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  useEffect(() => {
-  try {
-    const savedProjects = localStorage.getItem("code-projects");
-    if (savedProjects) {
-      const loadedProjects = JSON.parse(savedProjects);
-      setProjects(loadedProjects);
-      
-     
-      if (loadedProjects.length > 0) {
-        setActiveProjectId(loadedProjects[0].id);
-        console.log(" Active project set to:", loadedProjects[0].id);
-      }
-      
-      console.log("Projects loaded from localStorage");
-    } else {
-      console.log("No saved projects found");
-    }
-  } catch(error) {
-    console.error("Failed to load projects:", error);
-  }
-}, []);
 
+  // useEffect to AUTO-SAVE projects to localStorage when they change
   useEffect(() => {
     if (!isAutoSaveEnabled) return;
     
@@ -127,29 +108,78 @@ const PISTON_LANGUAGES = [
     return () => clearTimeout(timer);
   }, [projects, isAutoSaveEnabled]);
 
+  // useEffect to SAVE auto-save preference to localStorage
   useEffect(() => {
     localStorage.setItem('auto-save-enabled', JSON.stringify(isAutoSaveEnabled));
     console.log('Auto-save preference saved:', isAutoSaveEnabled);
   }, [isAutoSaveEnabled]);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const codeParam = urlParams.get('code');
-    if (codeParam) {
+
+
+  // useEffect to LOAD code from URL parameter on initial render
+    useEffect(() => {
       try {
-        const jsonString = atob(codeParam);
-        const parsedData = JSON.parse(jsonString);
-        if (Array.isArray(parsedData)) {
-          setFiles(parsedData);
+        const savedProjects = localStorage.getItem("code-projects");
+        if (savedProjects) {
+          const loadedProjects = JSON.parse(savedProjects);
+          setProjects(loadedProjects);
+          
+          if (loadedProjects.length > 0) {
+            setActiveProjectId(loadedProjects[0].id);
+          
+        
+            try {
+              const savedOpenTabs = localStorage.getItem("open-tabs");
+              if (savedOpenTabs) {
+                const loadedTabs = JSON.parse(savedOpenTabs);
+                
+              
+                const allFileIds = [];
+                loadedProjects.forEach(project => {
+                  project.files?.forEach(file => allFileIds.push(file.id));
+                  project.folders?.forEach(folder => {
+                    folder.files?.forEach(file => allFileIds.push(file.id));
+                  });
+                });
+                
+                
+                const validTabs = loadedTabs.filter(tabId => allFileIds.includes(tabId));
+                
+                if (validTabs.length > 0) {
+                  setOpenTabs(validTabs);
+                  setActiveTab(validTabs[0]);
+                } else {
+                
+                  if (allFileIds.length > 0) {
+                    setOpenTabs([allFileIds[0]]);
+                    setActiveTab(allFileIds[0]);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Failed to load open tabs:", error);
+            }
+          }
+          
+        } else {
+          console.log("No saved projects found");
         }
-        console.log("Code loaded from URL parameter.");
-      } catch (error) {
-        console.log("Failed to load code from URL parameter:", error);
+      } catch(error) {
+        console.error("Failed to load projects:", error);
       }
-    }
-  }, []);
+    }, []);
+
+    // useEffect to Save open tabs whenever they change
+    useEffect(() => {
+      try {
+        localStorage.setItem("open-tabs", JSON.stringify(openTabs));
+      } catch (error) {
+      }
+    }, [openTabs]);
 
 
+
+  // useEffect to RESET shareCode after 3 seconds
   useEffect(() => {
     if (!shareCode) return;
 
@@ -835,22 +865,23 @@ const PISTON_LANGUAGES = [
 };
 
   
-  const handleFIleCreation = ({ name, language }) => {
-    const newFile = {
-      id: `file-${Date.now()}`,
-      name: name,
-      language: language.id,
-      content: getDefaultContent(language.id)
-    };
+    const handleFIleCreation = ({ name, language }) => {
+  const newFile = {
+    id: `file-${Date.now()}`,
+    name: name,
+    language: language.id,
+    content: getDefaultContent(language.id)
+  };
 
-   const projectId = targetProjectId || projects[0]?.id;
-   const folderId = targetFolderId;
+  const projectId = targetProjectId || projects[0]?.id;
+  const folderId = targetFolderId;
 
-   if (!projectId) {
+  if (!projectId) {
     alert("No project available!");
     return;
-   }
-   setProjects(projects.map(project => {
+  }
+  
+  setProjects(projects.map(project => {
     if (project.id === projectId) {
       if (folderId) {
         return {
@@ -862,12 +893,11 @@ const PISTON_LANGUAGES = [
                 files: [...folder.files, newFile]
               };
             }
-             return folder;
+            return folder;
           })
         };
       }
       
-     
       return {
         ...project,
         files: [...project.files, newFile]
@@ -875,14 +905,15 @@ const PISTON_LANGUAGES = [
     }
     return project;
   }));
+  
   setTargetProjectId(null);
   setTargetFolderId(null);
   
-
+  // ✅ ADD: Add new file to open tabs
+  setOpenTabs([...openTabs, newFile.id]);
   setActiveTab(newFile.id);
   console.log('New file created:', newFile);
-
-  };
+};
 
   const deleteFiles = (fileId) => {
   const allFiles = getAllFiles();
@@ -924,15 +955,18 @@ return (
     )}
 
     <MobileTabs
-      activeView={activeMobileView}
+      activeView={activeTab}  
       onViewChange={(view) => {
-        setActiveMobileView(view);
-        if (view !== "preview") setActiveTab(view); 
+        if (view === 'preview') {
+          setActiveMobileView('preview');
+        } else {
+          setActiveMobileView('editor');
+          setActiveTab(view);
+        }
       }}
       files={getAllFiles()}
       onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-      onDeleteFile={deleteFiles}
-      isSidebarOpen = {isSidebarOpen}
+      isSidebarOpen={isSidebarOpen}
       openTabs={openTabs}
       onCloseTab={handleCloseTab}
     />
@@ -942,7 +976,7 @@ return (
       <div className="flex-1 flex overflow-hidden">
         {isSidebarOpen && (
           <div className="fixed inset-0 z-50 bg-black/20" onClick={() => setIsSidebarOpen(false)}>
-            <div className="absolute left-0 top-26 bottom-8.5 w-64" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute left-0 top-0 bottom-0 w-64 mt-[104px] md:mt-[60px]" onClick={(e) => e.stopPropagation()}>
               <FileExplorer
                 projects={projects}
                 onProjectCreate={handleProjectCreate}

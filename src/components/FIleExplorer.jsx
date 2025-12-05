@@ -28,11 +28,11 @@ function FileExplorer({
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0]?.id);
 
   return (
-    <div className={`w-64 h-full border-r ${
+    <div className={`w-64 h-full flex flex-col border-r ${
       isDark ? 'bg-gray-900 border-gray-700' : 'bg-gray-50 border-gray-200'
     }`}>
 
-      <div className={`p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className={`shrink-0 p-3 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex items-center justify-between mb-2">
           <h2 className={`text-sm font-semibold uppercase ${
             isDark ? 'text-gray-300' : 'text-gray-700'
