@@ -79,7 +79,7 @@ function PreviewPanel({ activeMobileView, files, outputCode, fontSize, pistonOut
                     <div className="w-full h-full p-4">
                         <h2 className="text-xl font-bold mb-2">
                     
-                            {pistonOutput.type === 'error' ? '❌ Execution Error' : '✅ Output'} 
+                            {pistonOutput.type === 'error' ? '❌ Execution Error' : 'Output'} 
                             <span className="text-sm font-normal ml-2 opacity-70 text-gray-500">
                                
                                 ({pistonOutput.language.toUpperCase()}) 
