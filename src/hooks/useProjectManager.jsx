@@ -101,7 +101,7 @@ export const useProjectManager = () => {
       }, [openTabs]);
   
 
-  // Project Handlers
+  // project Handlers
   const handleProjectCreate = () => {
     const projectName = prompt("Enter Project Name:") || `Project ${projects.length + 1}`;
     const newProject = {
