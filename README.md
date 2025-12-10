@@ -16,39 +16,6 @@ CodeEditor is a modern, web-based integrated development environment (IDE) built
 *   **Shareable Code URLs**: Generate and share unique URLs that encapsulate your project's code, making collaboration effortless.
 *   **Code Formatting**: Automatically format code within the editor for consistency and readability.
 
-## Getting Started
-
-Follow these steps to set up and run CodeEditor locally.
-
-### Installation
-To get a copy of this project running on your local machine, follow these simple steps:
-
-1.  ### Clone the Repository
-    Open your terminal or command prompt and run the following command to clone the project:
-    ```bash
-    git clone https://github.com/Just-Tara/code-editor.git
-    ```
-
-2.  ### Navigate to the Project Directory
-    Change into the project directory:
-    ```bash
-    cd code-editor
-    ```
-
-3.  ### Install Dependencies
-    Install the required Node.js packages using npm:
-    ```bash
-    npm install
-    ```
-
-4.  ### Run the Development Server
-    Start the development server. This will typically open the application in your default web browser at `http://localhost:5173` (or another available port).
-    ```bash
-    npm run dev
-    ```
-
-### Environment Variables
-This project does not require specific environment variables for local development. It utilizes `emkc.org/api/v2/piston` directly for backend language execution.
 
 ## Usage
 
@@ -111,10 +78,11 @@ We welcome contributions to CodeEditor! If you have suggestions for improvements
 ## Author Info
 
 *   **Your Name:** [Tara]
-*   **Twitter:** [https://x.com/J_Tara_]
+*   **Twitter:** [[J_Tara_](https://x.com/J_Tara_)]
 
 ---
 
 [![React](https://img.shields.io/badge/React-18.x-blue?style=for-the-badge&logo=react)](https://react.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-blue?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-latest-purple?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+ 

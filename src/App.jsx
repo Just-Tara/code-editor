@@ -25,8 +25,8 @@ function App() {
   } = useProjectManager();
 
   const {
-    outputCode, pistonOutput, isRunning, consoleLogs, isConsoleOpen, activeMobileView, setIsMobile,
-    setIsConsoleOpen, setConsoleLogs, handleRunCode, handleClearConsole, isMobile, setActiveMobileView
+    outputCode, pistonOutput, isRunning, consoleLogs, isConsoleOpen, 
+    setIsConsoleOpen, setConsoleLogs, handleRunCode, handleClearConsole, 
   } = useCodeRunner(projects, activeProjectId, activeTab);
 
 
@@ -38,7 +38,18 @@ function App() {
   const [editorInstance, setEditorInstance] = useState(null); 
   const [shareCode, setShareCode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [activeMobileView, setActiveMobileView] = useState("editor");
 
+
+
+
+  const onRunCodeWrapper = async () => {
+    const result = await handleRunCode();
+    if (result === "preview" && isMobile) {
+      setActiveMobileView("preview");
+    }
+  }
    
   // useEffect to HANDLE MOBILE VIEW DETECTION
   useEffect(() => {
@@ -162,7 +173,7 @@ return (
       isDark={isDark}
       onToggleTheme={() => setIsDark(!isDark)}
       onMenuOpen={() => setIsMobileMenuOpen(true)}
-      onRunCode={handleRunCode}
+      onRunCode={onRunCodeWrapper}
       isRunning={isRunning}
       onIncreaseFontSize={increaseFontSize}
       onDecreaseFontSize={decreaseFontSize}
