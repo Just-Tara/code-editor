@@ -1,4 +1,4 @@
-
+This is my app.jsx code
 import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
 import AddNewFIle from "./components/AddNewFIle.jsx";
@@ -35,13 +35,20 @@ function App() {
   const [isDark, setIsDark] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const [fontSize, setFontSize] = useState(14);
-  const [activeMobileView, setActiveMobileView] = useState("editor"); 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(true);
+  const [activeMobileView, setActiveMobileView] = useState("editor"); // Default to editor
   const [editorInstance, setEditorInstance] = useState(null); 
   const [shareCode, setShareCode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
+
+
+   const onRunCodeWrapper = async () => {
+      const result = await handleRunCode();
+      if (result === "preview" && isMobile) {
+          setActiveMobileView("preview");
+      }
+   }
    
   // useEffect to HANDLE MOBILE VIEW DETECTION
   useEffect(() => {
@@ -165,7 +172,7 @@ return (
       isDark={isDark}
       onToggleTheme={() => setIsDark(!isDark)}
       onMenuOpen={() => setIsMobileMenuOpen(true)}
-      onRunCode={handleRunCode}
+      onRunCode={onRunCodeWrapper}
       isRunning={isRunning}
       onIncreaseFontSize={increaseFontSize}
       onDecreaseFontSize={decreaseFontSize}
@@ -304,7 +311,7 @@ return (
               </div>
             )}
           >
-          
+            
             <div style={{   
               minWidth: 300, 
               width: '50%', 
@@ -331,7 +338,7 @@ return (
               />
             </div>
 
-            {/* Preview Panel */}
+            
             <div style={{ 
               minWidth: 300, 
               flex: 1, 
@@ -402,4 +409,4 @@ return (
 );
 }
 
-export default App;
+export default
