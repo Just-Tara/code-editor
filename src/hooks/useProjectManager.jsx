@@ -49,8 +49,10 @@ useEffect(() => {
       console.log("Found share ID:", id);
       const sharedData = await getProjectFromCloud(id);
       
-      if (sharedData && sharedData.length > 0) 
+    
+      if (sharedData && sharedData.length > 0) {
         setProjects(sharedData);
+        
         const loadedProject = sharedData[0];
         setActiveProjectId(loadedProject.id);
       
@@ -65,11 +67,6 @@ useEffect(() => {
   loadShareProject();
 }, []);
   
-
-
-
-
-
  useEffect(() => {
    const params = new URLSearchParams(window.location.search);
    const sharedId = params.get("id");
