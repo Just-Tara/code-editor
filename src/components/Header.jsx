@@ -23,7 +23,7 @@ export default function Header ({
                 <div className="font-bold text-lg flex items-center gap-2">
                     <img src={logo} alt="Codrume-Logo" className='w-7'/>
 
-                        <h1 className='text-white text-xl leading-none tracking-wide'>
+                        <h1 className={`dark:text-white text-xl leading-none tracking-wide`}>
                             Cod<span className="text-blue-500">rume</span>
                         </h1>
                     
